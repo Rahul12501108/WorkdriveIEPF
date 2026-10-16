@@ -1,0 +1,43 @@
+{
+  "locale": [
+    "en"
+  ],
+  "service": "DESK",
+  "storage": false,
+  "type": "personal",
+  "whiteListedDomains": [
+    "https://www.zohoapis.in",
+    "https://www.zohoapis.com"
+  ],
+  "modules": {
+    "widgets": [
+      {
+        "location": "desk.topband",
+        "url": "/app/widget.html",
+        "name": "Upload Attcahments to WorkDrive",
+        "logo": "/app/img/logo.png",
+        "icon": "/app/img/icon.png"
+      }
+    ]
+  },
+  "cspDomains": {
+    "connect-src": []
+  },
+  "zohoAuthorisation": {},
+  "connectors": [
+    {
+      "connectionLinkName": "zoho_workdrive_widget",
+      "connectionName": "zoho_workdrive_widget",
+      "serviceName": "zoho_workdrive",
+      "userAccess": true,
+      "isUserDefinedService": false,
+      "sharedBy": "60034445749",
+      "scope": [
+        "WorkDrive.files.ALL",
+        "WorkDrive.Collection.ALL"
+      ]
+    }
+  ],
+  "config": [],
+  "moduleSupport": false
+}
