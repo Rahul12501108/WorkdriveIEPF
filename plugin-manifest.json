@@ -34,7 +34,8 @@
       "sharedBy": "60034445749",
       "scope": [
         "WorkDrive.files.ALL",
-        "WorkDrive.Collection.ALL"
+        "WorkDrive.Collection.ALL",
+        "WorkDrive.files.CREATE"
       ]
     }
   ],

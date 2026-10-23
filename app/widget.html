@@ -5,7 +5,6 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>IEPF Document Upload</title>
-	<script src="https://live.zwidgets.com/js-sdk/1.2/ZohoDeskClientSDK.min.js"></script>
 	<script src="https://js.zohostatic.com/support/developer_sdk/v1/js/ZohoDeskClientSDK.min.js"></script>
 	<style>
 		* {
@@ -927,64 +926,79 @@ FOOTER
 		========================================== */
 
 
-		async function uploadFileToWorkDrive(file, folderId) {
-			const requestObj = {
-				url: "https://www.zohoapis.in/workdrive/api/v1/upload",
-				type: "POST",
-				headers: {
-					"Content-Type": "multipart/form-data",
-					"Accept": "application/vnd.api+json"
-				},
-				postBody: {
-					parent_id: folderId
-				},
-				fileObj: [
-					{
-						key: "content",
-						file: file
-					}
-				],
-				connectionLinkName: "zoho_workdrive_widget"
-			};
+async function uploadFileToWorkDrive(file, folderId) {
+    if (!(file instanceof File) || file.size === 0) {
+        throw new Error("Please provide a valid, non-empty File object.");
+    }
 
-			const rawResponse = await ZOHODESK.request(requestObj);
+    if (!folderId) {
+        throw new Error("WorkDrive folder ID is missing.");
+    }
 
-			console.log("Raw SDK response:", rawResponse);
+    if (file.size > 20 * 1024 * 1024) {
+        throw new Error("File exceeds the Zoho Desk SDK 20 MB limit.");
+    }
 
-			// Extract the API response from the SDK wrapper.
-			let apiResponse = rawResponse;
+    const requestObj = {
+        url: "https://www.zohoapis.in/workdrive/api/v1/upload",
+        type: "POST",
 
-			for (let i = 0; i < 3; i++) {
-				if (typeof apiResponse === "string") {
-					try {
-						apiResponse = JSON.parse(apiResponse);
-					} catch (e) {
-						throw new Error("Invalid JSON response: " + apiResponse);
-					}
-				}
+        headers: {
+            "Authorization": "Zoho-oauthtoken 1000.bd647f68bdc1028f563dc2f24d406147.33c3fbadb7923ecfc1eb9c5147d74d0e",
+            "Accept": "application/vnd.api+json",
+            "Content-Type": "multipart/form-data"
+        },
 
-				if (
-					apiResponse &&
-					typeof apiResponse.response === "string"
-				) {
-					apiResponse = apiResponse.response;
-				} else {
-					break;
-				}
-			}
+        postBody: {
+            parent_id: folderId,
+            filename: encodeURIComponent(file.name),
+            "override-name-exist": "true"
+        },
 
-			console.log("WorkDrive API response:", apiResponse);
+        fileObj: [
+            {
+                key: "content",
+                file: file
+            }
+        ],
 
-			if (
-				apiResponse?.status === "false" ||
-				apiResponse?.statusMessage?.errors ||
-				apiResponse?.errors
-			) {
-				throw new Error(JSON.stringify(apiResponse));
-			}
+       
+    };
 
-			return apiResponse;
-		}
+    console.log("Uploading file:", {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        folderId: folderId,
+        fileObjectValid: requestObj.fileObj[0].file instanceof File
+    });
+
+    const rawResponse = await ZOHODESK.request(requestObj);
+
+    console.log("Raw WorkDrive response:", rawResponse);
+
+    const result = typeof rawResponse === "string"
+        ? JSON.parse(rawResponse)
+        : rawResponse;
+
+    const body = typeof result?.response === "string"
+        ? JSON.parse(result.response)
+        : result?.response ?? result;
+
+    if (
+        Number(result?.statusCode) >= 400 ||
+        body?.status === false ||
+        body?.status === "false" ||
+        body?.statusMessage?.errors?.length
+    ) {
+        throw new Error(JSON.stringify(body));
+    }
+
+    console.log("WorkDrive upload response:", body);
+    return body;
+}
+
+
 
 		/* ==========================================
 		   UPLOAD MULTIPLE FILES
@@ -1071,6 +1085,8 @@ FOOTER
 				}
 			};
 
+			console.log("Creating WorkDrive folder with request body:", requestBody);
+
 			const response = await ZOHODESK.request({
 				url: "https://www.zohoapis.in/workdrive/api/v1/files",
 				type: "POST",
@@ -1156,7 +1172,8 @@ FOOTER
 			}
 
 			// Get selected files from the Documents field.
-			const files = fileInput.files;
+			const fileInput1 = document.getElementById("fileInput");
+			const files = fileInput1.files;
 
 			if (!files || files.length === 0) {
 				showStatus("⚠ Please select at least one document.", "warning");
