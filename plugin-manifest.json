@@ -7,21 +7,26 @@
   "type": "personal",
   "whiteListedDomains": [
     "https://www.zohoapis.in",
-    "https://www.zohoapis.com"
+    "https://www.zohoapis.com",
+    "https://accounts.zoho.in"
   ],
   "modules": {
     "widgets": [
       {
         "location": "desk.topband",
         "url": "/app/widget.html",
-        "name": "Upload Attcahments to WorkDrive",
+        "name": "Upload Attachments to WorkDrive",
         "logo": "/app/img/logo.png",
         "icon": "/app/img/icon.png"
       }
     ]
   },
   "cspDomains": {
-    "connect-src": []
+    "connect-src": [
+      "https://accounts.zoho.in",
+      "https://*.zohostatic.com",
+      "https://*.sigmausercontent.com"
+    ]
   },
   "zohoAuthorisation": {},
   "connectors": [
@@ -36,6 +41,21 @@
         "WorkDrive.files.ALL",
         "WorkDrive.Collection.ALL",
         "WorkDrive.files.CREATE"
+      ]
+    },
+    {
+      "connectionLinkName": "crm_widgets",
+      "connectionName": "crm_widgets",
+      "serviceName": "zoho_crm",
+      "userAccess": true,
+      "isUserDefinedService": false,
+      "sharedBy": "60034445749",
+      "scope": [
+        "ZohoCRM.modules.ALL",
+        "ZohoCRM.modules.attachments.all",
+        "ZohoCRM.settings.ALL",
+        "ZohoCRM.modules.All",
+        "ZohoCrm.Emails.compose.ALL"
       ]
     }
   ],
